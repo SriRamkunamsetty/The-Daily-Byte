@@ -57,6 +57,11 @@ export default function Navbar({ searchQuery: externalQuery, onSearchChange: ext
               onChange={(e) => onSearchChange(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchQuery.trim()) {
+                  navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+                }
+              }}
               className="flex-1 bg-transparent ml-2 text-sm outline-none text-foreground placeholder:text-muted-foreground"
               aria-label="Search news"
             />
