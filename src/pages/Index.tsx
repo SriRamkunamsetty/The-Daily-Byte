@@ -10,12 +10,14 @@ import AuthModal from "@/components/AuthModal";
 import { ALL_NEWS } from "@/data/news";
 
 const Index = () => {
-  const { authModalOpen, setAuthModalOpen, login } = useApp();
+  const { authModalOpen, setAuthModalOpen, login, userPosts } = useApp();
   const [activeCategory, setActiveCategory] = useState("Top News");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const allArticles = useMemo(() => [...userPosts, ...ALL_NEWS], [userPosts]);
+
   const filteredNews = useMemo(() => {
-    let news = ALL_NEWS;
+    let news = allArticles;
     if (activeCategory !== "Top News") {
       news = news.filter((n) => n.category === activeCategory);
     }
@@ -29,7 +31,7 @@ const Index = () => {
       );
     }
     return news;
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, allArticles]);
 
   const gridItems = useMemo(() => {
     const items: Array<{ type: "news"; item: NewsItem } | { type: "ad"; id: number }> = [];

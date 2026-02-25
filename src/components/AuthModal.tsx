@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Lock, Chrome } from "lucide-react";
+import { X, Mail, Lock, Chrome, Shield } from "lucide-react";
+import type { UserRole } from "@/context/AppContext";
 
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
-  onLogin: () => void;
+  onLogin: (role?: UserRole) => void;
 }
 
 export default function AuthModal({ open, onClose, onLogin }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [adminMode, setAdminMode] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin();
+    onLogin(adminMode ? "admin" : "user");
     onClose();
+    setAdminMode(false);
   };
 
   return (
@@ -58,14 +61,28 @@ export default function AuthModal({ open, onClose, onLogin }: AuthModalProps) {
             {/* Header */}
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-foreground mb-1">
-                {isSignUp ? "Create Account" : "Welcome Back"}
+                {adminMode ? "Admin Login" : isSignUp ? "Create Account" : "Welcome Back"}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {isSignUp
+                {adminMode
+                  ? "Sign in as CEO / Administrator"
+                  : isSignUp
                   ? "Join The Daily Byte for personalized news"
                   : "Sign in to your Daily Byte account"}
               </p>
             </div>
+
+            {/* Admin mode badge */}
+            {adminMode && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 justify-center mb-4 px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-600 dark:text-amber-300 text-xs font-semibold"
+              >
+                <Shield size={14} />
+                Administrator Access
+              </motion.div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -103,9 +120,13 @@ export default function AuthModal({ open, onClose, onLogin }: AuthModalProps) {
                 type="submit"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:opacity-90 transition-opacity"
+                className={`w-full py-3 rounded-xl font-semibold text-sm shadow-md hover:opacity-90 transition-opacity ${
+                  adminMode
+                    ? "bg-amber-500 text-white"
+                    : "bg-primary text-primary-foreground"
+                }`}
               >
-                {isSignUp ? "Create Account" : "Sign In"}
+                {adminMode ? "Sign In as Admin" : isSignUp ? "Create Account" : "Sign In"}
               </motion.button>
             </form>
 
@@ -121,8 +142,9 @@ export default function AuthModal({ open, onClose, onLogin }: AuthModalProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
-                onLogin();
+                onLogin(adminMode ? "admin" : "user");
                 onClose();
+                setAdminMode(false);
               }}
               className="w-full py-3 rounded-xl bg-white/60 dark:bg-white/10 border border-white/30 dark:border-white/10 text-foreground font-medium text-sm flex items-center justify-center gap-2 hover:bg-white/80 dark:hover:bg-white/15 transition-colors"
             >
@@ -130,16 +152,27 @@ export default function AuthModal({ open, onClose, onLogin }: AuthModalProps) {
               Continue with Google
             </motion.button>
 
-            {/* Toggle */}
-            <p className="text-center text-sm text-muted-foreground mt-6">
-              {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+            {/* Toggle + Admin shortcut */}
+            <div className="mt-6 space-y-2">
+              <p className="text-center text-sm text-muted-foreground">
+                {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+                <button
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-primary font-semibold hover:underline"
+                >
+                  {isSignUp ? "Sign in" : "Sign up"}
+                </button>
+              </p>
+
+              {/* Hidden admin toggle — triple-click or direct button */}
               <button
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-primary font-semibold hover:underline"
+                onClick={() => setAdminMode(!adminMode)}
+                className="mx-auto flex items-center gap-1.5 text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
               >
-                {isSignUp ? "Sign in" : "Sign up"}
+                <Shield size={10} />
+                {adminMode ? "Switch to User Login" : "Admin Login"}
               </button>
-            </p>
+            </div>
           </motion.div>
         </motion.div>
       )}

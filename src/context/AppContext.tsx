@@ -1,16 +1,21 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import type { NewsItem } from "@/components/NewsCard";
 
+export type UserRole = "user" | "admin";
+
 interface AppContextValue {
   isLoggedIn: boolean;
-  login: () => void;
+  role: UserRole;
+  login: (role?: UserRole) => void;
   logout: () => void;
   favorites: Set<number>;
-  toggleFavorite: (id: number) => boolean; // returns false if not logged in
+  toggleFavorite: (id: number) => boolean;
   authModalOpen: boolean;
   setAuthModalOpen: (v: boolean) => void;
   darkMode: boolean;
   toggleDark: () => void;
+  userPosts: NewsItem[];
+  addPost: (post: NewsItem) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -29,13 +34,20 @@ export const MOCK_USER = {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState<UserRole>("user");
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [userPosts, setUserPosts] = useState<NewsItem[]>([]);
 
-  const login = useCallback(() => setIsLoggedIn(true), []);
+  const login = useCallback((r: UserRole = "user") => {
+    setIsLoggedIn(true);
+    setRole(r);
+  }, []);
+
   const logout = useCallback(() => {
     setIsLoggedIn(false);
+    setRole("user");
     setFavorites(new Set());
   }, []);
 
@@ -63,10 +75,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addPost = useCallback((post: NewsItem) => {
+    setUserPosts((prev) => [post, ...prev]);
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
         isLoggedIn,
+        role,
         login,
         logout,
         favorites,
@@ -75,6 +92,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setAuthModalOpen,
         darkMode,
         toggleDark,
+        userPosts,
+        addPost,
       }}
     >
       {children}

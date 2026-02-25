@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Clock, ArrowRight, Bookmark, BookmarkCheck } from "lucide-react";
 import { motion } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
 import { useApp } from "@/context/AppContext";
 
 export interface NewsItem {
@@ -12,6 +13,7 @@ export interface NewsItem {
   image: string;
   imageAlt: string;
   content?: string;
+  createdAt?: Date;
 }
 
 interface NewsCardProps {
@@ -29,6 +31,13 @@ const categoryColors: Record<string, string> = {
   "Web Dev": "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-300/30",
   "Top News": "bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-300/30",
 };
+
+function getTimeLabel(item: NewsItem): string {
+  if (item.createdAt) {
+    return formatDistanceToNow(item.createdAt, { addSuffix: true });
+  }
+  return item.timeAgo;
+}
 
 export default function NewsCard({ item, index = 0 }: NewsCardProps) {
   const tagClass = categoryColors[item.category] ?? "bg-secondary text-secondary-foreground";
@@ -69,7 +78,6 @@ export default function NewsCard({ item, index = 0 }: NewsCardProps) {
             {item.category}
           </span>
         </div>
-        {/* Bookmark icon */}
         <motion.button
           whileTap={{ scale: 0.75 }}
           onClick={handleBookmark}
@@ -103,7 +111,7 @@ export default function NewsCard({ item, index = 0 }: NewsCardProps) {
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/20 dark:border-white/10">
           <span className="flex items-center gap-1 text-muted-foreground text-xs">
             <Clock size={12} />
-            {item.timeAgo}
+            {getTimeLabel(item)}
           </span>
           <span className="flex items-center gap-1 text-primary text-xs font-semibold group/link">
             <span>Read More</span>

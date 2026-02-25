@@ -9,6 +9,7 @@ import {
   Bell,
   LogOut,
   User,
+  LayoutDashboard,
 } from "lucide-react";
 import { useApp, MOCK_USER } from "@/context/AppContext";
 
@@ -19,7 +20,7 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
-  const { darkMode, toggleDark } = useApp();
+  const { darkMode, toggleDark, role } = useApp();
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -34,6 +35,16 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
   }, [open, onClose]);
 
   const menuItems = [
+    ...(role === "admin"
+      ? [
+          {
+            icon: LayoutDashboard,
+            label: "CEO Dashboard",
+            onClick: () => navigate("/admin"),
+            highlight: true,
+          },
+        ]
+      : []),
     { icon: User, label: "My Profile", onClick: () => navigate("/profile") },
     { icon: Bookmark, label: "Saved Articles", onClick: () => navigate("/profile") },
     { icon: SlidersHorizontal, label: "Manage Categories", onClick: () => {} },
@@ -71,7 +82,7 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
 
           {/* Menu items */}
           <div className="py-1.5">
-            {menuItems.map(({ icon: Icon, label, onClick, keepOpen }) => (
+            {menuItems.map(({ icon: Icon, label, onClick, keepOpen, highlight }: any) => (
               <button
                 key={label}
                 onClick={() => {
@@ -79,9 +90,13 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
                   if (keepOpen) return;
                   onClose();
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                  highlight
+                    ? "text-amber-600 dark:text-amber-300 font-semibold bg-amber-500/10 hover:bg-amber-500/20"
+                    : "text-foreground hover:bg-white/20 dark:hover:bg-white/10"
+                }`}
               >
-                <Icon size={16} className="text-muted-foreground shrink-0" />
+                <Icon size={16} className={highlight ? "text-amber-500" : "text-muted-foreground shrink-0"} />
                 {label}
               </button>
             ))}
