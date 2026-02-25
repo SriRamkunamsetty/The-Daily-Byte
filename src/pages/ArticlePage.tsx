@@ -6,6 +6,7 @@ import { useApp } from "@/context/AppContext";
 import Navbar from "@/components/Navbar";
 import NewsFooter from "@/components/NewsFooter";
 import AuthModal from "@/components/AuthModal";
+import AdBanner from "@/components/AdBanner";
 
 const categoryColors: Record<string, string> = {
   "AI Agents": "bg-blue-500/15 text-blue-600 dark:text-blue-300 border border-blue-300/30",
@@ -36,9 +37,25 @@ export default function ArticlePage() {
   const isFav = favorites.has(article.id);
   const tagClass = categoryColors[article.category] ?? "bg-secondary text-secondary-foreground";
 
+  // Split content into paragraphs for inline ad injection
+  const paragraphs = (article as any).content?.split("\n\n") ?? [article.description];
+  const adInsertIndices = new Set<number>();
+  if (paragraphs.length >= 4) {
+    const mid = Math.floor(paragraphs.length / 3);
+    adInsertIndices.add(mid);
+    adInsertIndices.add(mid * 2);
+  } else if (paragraphs.length >= 2) {
+    adInsertIndices.add(Math.floor(paragraphs.length / 2));
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+
+      {/* Ad 1: Top Banner below navbar */}
+      <aside className="max-w-4xl mx-auto px-4 pt-4" aria-label="Advertisement">
+        <AdBanner type="horizontal" />
+      </aside>
 
       <motion.main
         initial={{ opacity: 0, y: 20 }}
@@ -116,26 +133,39 @@ export default function ArticlePage() {
           </motion.button>
         </div>
 
-        {/* Article body */}
+        {/* Article body with inline ads */}
         <div className="prose prose-lg dark:prose-invert max-w-none">
-          {(article as any).content?.split("\n\n").map((paragraph: string, i: number) => (
-            <motion.p
-              key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.05 }}
-              className="text-foreground/90 text-base leading-relaxed mb-5"
-            >
-              {paragraph}
-            </motion.p>
-          )) ?? (
-            <p className="text-foreground/90 text-base leading-relaxed">{article.description}</p>
-          )}
+          {paragraphs.map((paragraph: string, i: number) => (
+            <div key={i}>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.05 }}
+                className="text-foreground/90 text-base leading-relaxed mb-5"
+              >
+                {paragraph}
+              </motion.p>
+              {/* Ads 2 & 3: Inline ads between paragraphs */}
+              {adInsertIndices.has(i) && (
+                <aside aria-label="Advertisement">
+                  <AdBanner type="inline" />
+                </aside>
+              )}
+            </div>
+          ))}
         </div>
+
+        {/* Ad 4: Bottom anchor after article */}
+        <aside className="mt-10 mb-6" aria-label="Advertisement">
+          <AdBanner type="horizontal" />
+        </aside>
       </motion.main>
 
       <NewsFooter />
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} onLogin={login} />
+
+      {/* Ad 5: Sticky footer ad on mobile */}
+      <AdBanner type="sticky-footer" />
     </div>
   );
 }
