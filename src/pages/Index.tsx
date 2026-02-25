@@ -38,7 +38,7 @@ const Index = () => {
     let adCount = 0;
     filteredNews.forEach((item, idx) => {
       items.push({ type: "news", item });
-      if ((idx + 1) % 5 === 0) {
+      if ((idx + 1) % 4 === 0) {
         adCount++;
         items.push({ type: "ad", id: adCount });
       }
@@ -49,6 +49,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+
+      {/* Ad 1: Top Banner below navbar, above category tabs */}
+      <aside className="max-w-7xl mx-auto px-4 pt-3" aria-label="Advertisement">
+        <AdBanner type="horizontal" />
+      </aside>
+
       <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -56,12 +62,6 @@ const Index = () => {
           <section className="mb-6" aria-label="Featured breaking news">
             <HeroCard />
           </section>
-        )}
-
-        {!searchQuery && (
-          <aside className="mb-8" aria-label="Advertisement">
-            <AdBanner type="horizontal" />
-          </aside>
         )}
 
         <div className="flex items-center justify-between mb-6">
@@ -85,16 +85,28 @@ const Index = () => {
             <p className="text-sm mt-1">Try a different category or search term.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gridItems.map((entry, idx) =>
-              entry.type === "news" ? (
-                <NewsCard key={`news-${entry.item.id}`} item={entry.item} index={idx} />
-              ) : (
-                <aside key={`ad-${entry.id}`} aria-label="Advertisement" className="flex">
-                  <AdBanner type="square" className="flex-1" />
-                </aside>
-              )
-            )}
+          <div className="flex gap-6">
+            {/* Main content area – 75% on desktop */}
+            <div className="flex-1 min-w-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {gridItems.map((entry, idx) =>
+                  entry.type === "news" ? (
+                    <NewsCard key={`news-${entry.item.id}`} item={entry.item} index={idx} />
+                  ) : (
+                    <aside key={`ad-${entry.id}`} aria-label="Advertisement" className="flex">
+                      <AdBanner type="square" className="flex-1" />
+                    </aside>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Ad 6: Desktop Sticky Sidebar */}
+            <aside className="hidden lg:block w-[280px] shrink-0" aria-label="Sidebar advertisement">
+              <div className="sticky top-36">
+                <AdBanner type="vertical" />
+              </div>
+            </aside>
           </div>
         )}
       </main>
