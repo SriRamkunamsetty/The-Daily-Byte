@@ -1,19 +1,92 @@
+import { useState, useRef, useEffect } from "react";
 import { Clock, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useApp } from "@/context/AppContext";
+import { useAudio } from "@/hooks/useAudio";
 import heroImg from "@/assets/hero-news.jpg";
 
 export default function HeroCard() {
   const navigate = useNavigate();
+  const { antigravity } = useApp();
+  const { playWhoosh, playThud, playFlick, playTick } = useAudio();
+  const [zIndex, setZIndex] = useState(1);
+  const floorHitRef = useRef(false);
+
+  useEffect(() => {
+    if (antigravity) {
+      playWhoosh();
+      floorHitRef.current = false;
+    }
+  }, [antigravity, playWhoosh]);
+
+  const gravityAnimation = {
+    y: "82vh",
+    rotate: Math.random() * 6 - 3,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 10,
+      mass: 1.5,
+    }
+  };
+
+  const normalAnimation = {
+    y: 0,
+    rotate: 0,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15
+    }
+  };
+
+  const handleCardClick = () => {
+    navigate("/article/1");
+  };
 
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+      animate={antigravity ? gravityAnimation : normalAnimation}
+      transition={antigravity ? undefined : { duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+      whileHover={antigravity ? undefined : { scale: 1.01 }}
+      whileDrag={{ scale: 1.02, zIndex: 100 }}
+      drag={antigravity}
+      dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
+      dragElastic={0.2}
+      dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+      onDragStart={() => {
+        setZIndex(100);
+        playTick();
+      }}
+      onDragEnd={(_, info) => {
+        setZIndex(50);
+        playFlick(info.velocity.y);
+        floorHitRef.current = false;
+      }}
+      onUpdate={(latest: any) => {
+        if (antigravity) {
+          const y = typeof latest.y === "string" ? parseFloat(latest.y) : latest.y;
+          const floorY = window.innerHeight * 0.8;
+
+          if (!floorHitRef.current && y >= floorY) {
+            playThud();
+            floorHitRef.current = true;
+          } else if (floorHitRef.current && y < floorY - 20) {
+            floorHitRef.current = false;
+          }
+        }
+      }}
       className="relative w-full overflow-hidden rounded-3xl cursor-pointer"
-      style={{ minHeight: "460px" }}
-      onClick={() => navigate("/article/1")}
+      style={{
+        minHeight: "460px",
+        zIndex: antigravity ? zIndex : "auto",
+        transition: antigravity ? "none" : "transform 0.3s ease-out, box-shadow 0.3s ease-out",
+        willChange: "transform"
+      }}
+      onClick={antigravity ? undefined : handleCardClick}
     >
       {/* Background image */}
       <img

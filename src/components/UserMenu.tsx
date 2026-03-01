@@ -10,8 +10,11 @@ import {
   LogOut,
   User,
   LayoutDashboard,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
-import { useApp, MOCK_USER } from "@/context/AppContext";
+import { useApp } from "@/context/AppContext";
+import GravityToggle from "./GravityToggle";
 
 interface UserMenuProps {
   open: boolean;
@@ -20,7 +23,7 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
-  const { darkMode, toggleDark, role } = useApp();
+  const { darkMode, toggleDark, role, user, isMuted, toggleMute } = useApp();
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -37,24 +40,24 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
   const menuItems = [
     ...(role === "admin"
       ? [
-          {
-            icon: LayoutDashboard,
-            label: "CEO Dashboard",
-            onClick: () => navigate("/admin"),
-            highlight: true,
-          },
-        ]
+        {
+          icon: LayoutDashboard,
+          label: "CEO Dashboard",
+          onClick: () => navigate("/admin"),
+          highlight: true,
+        },
+      ]
       : []),
     { icon: User, label: "My Profile", onClick: () => navigate("/profile") },
     { icon: Bookmark, label: "Saved Articles", onClick: () => navigate("/profile") },
-    { icon: SlidersHorizontal, label: "Manage Categories", onClick: () => {} },
+    { icon: SlidersHorizontal, label: "Manage Categories", onClick: () => { } },
     {
       icon: darkMode ? Sun : Moon,
       label: `Theme: ${darkMode ? "Light" : "Dark"}`,
       onClick: toggleDark,
       keepOpen: true,
     },
-    { icon: Bell, label: "Manage Alerts", onClick: () => {} },
+    { icon: Bell, label: "Manage Alerts", onClick: () => { } },
   ];
 
   return (
@@ -71,10 +74,10 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
           {/* User info header */}
           <div className="px-4 py-3.5">
             <p className="text-sm font-semibold text-foreground truncate">
-              {MOCK_USER.name}
+              {user?.displayName || "User"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {MOCK_USER.email}
+              {user?.email || ""}
             </p>
           </div>
 
@@ -90,16 +93,28 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
                   if (keepOpen) return;
                   onClose();
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                  highlight
-                    ? "text-amber-600 dark:text-amber-300 font-semibold bg-amber-500/10 hover:bg-amber-500/20"
-                    : "text-foreground hover:bg-white/20 dark:hover:bg-white/10"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${highlight
+                  ? "text-amber-600 dark:text-amber-300 font-semibold bg-amber-500/10 hover:bg-amber-500/20"
+                  : "text-foreground hover:bg-white/20 dark:hover:bg-white/10"
+                  }`}
               >
                 <Icon size={16} className={highlight ? "text-amber-500" : "text-muted-foreground shrink-0"} />
                 {label}
               </button>
             ))}
+            <GravityToggle />
+
+            <button
+              onClick={toggleMute}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm w-full text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-colors border-t border-border/50"
+            >
+              {isMuted ? (
+                <VolumeX size={16} className="text-muted-foreground" />
+              ) : (
+                <Volume2 size={16} className="text-muted-foreground" />
+              )}
+              <span>{isMuted ? "Unmute Audio" : "Mute Audio"}</span>
+            </button>
           </div>
 
           <div className="h-px bg-white/10 dark:bg-white/5" />

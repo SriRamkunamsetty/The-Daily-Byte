@@ -1,11 +1,13 @@
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, ArrowRight, Bookmark, BookmarkCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useApp } from "@/context/AppContext";
+import { useAudio } from "@/hooks/useAudio";
 
 export interface NewsItem {
-  id: number;
+  id: string;
   title: string;
   description: string;
   category: string;
@@ -41,9 +43,18 @@ function getTimeLabel(item: NewsItem): string {
 
 export default function NewsCard({ item, index = 0 }: NewsCardProps) {
   const tagClass = categoryColors[item.category] ?? "bg-secondary text-secondary-foreground";
-  const { favorites, toggleFavorite } = useApp();
+  const { favorites, toggleFavorite, antigravity } = useApp();
+  const { playWhoosh, playThud, playFlick, playTick } = useAudio();
+  const [zIndex, setZIndex] = useState(50);
+  const floorHitRef = useRef(false);
   const isFav = favorites.has(item.id);
   const navigate = useNavigate();
+  useEffect(() => {
+    if (antigravity) {
+      playWhoosh();
+      floorHitRef.current = false; // Reset floor hit state
+    }
+  }, [antigravity, playWhoosh]);
 
   const handleCardClick = () => {
     navigate(`/article/${item.id}`);
@@ -54,15 +65,71 @@ export default function NewsCard({ item, index = 0 }: NewsCardProps) {
     toggleFavorite(item.id);
   };
 
+  const gravityAnimation = {
+    y: "82vh",
+    rotate: Math.random() * 10 - 5,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 10,
+      mass: 1,
+      delay: index * 0.02
+    }
+  };
+
+  const normalAnimation = {
+    opacity: 1,
+    y: 0,
+    rotate: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15,
+      mass: 1
+    }
+  };
+
   return (
     <motion.article
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: index * 0.05, ease: [0.4, 0, 0.2, 1] }}
-      whileHover={{ scale: 1.025, y: -4 }}
-      onClick={handleCardClick}
+      initial={antigravity ? false : { opacity: 0, y: 20 }}
+      animate={antigravity ? gravityAnimation : normalAnimation}
+      transition={antigravity ? undefined : { duration: 0.35, delay: index * 0.05, ease: [0.4, 0, 0.2, 1] }}
+      whileHover={antigravity ? undefined : { scale: 1.025, y: -4 }}
+      whileDrag={{ scale: 1.05, zIndex: 100 }}
+      drag={antigravity ? true : false}
+      dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
+      dragElastic={0.2}
+      dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+      onDragStart={() => {
+        setZIndex(100);
+        playTick();
+      }}
+      onDragEnd={(_, info) => {
+        setZIndex(50);
+        playFlick(info.velocity.y);
+        floorHitRef.current = false;
+      }}
+      onUpdate={(latest: any) => {
+        if (antigravity) {
+          const y = typeof latest.y === "string" ? parseFloat(latest.y) : latest.y;
+          const floorY = window.innerHeight * 0.8;
+
+          if (!floorHitRef.current && y >= floorY) {
+            playThud();
+            floorHitRef.current = true;
+          } else if (floorHitRef.current && y < floorY - 20) {
+            // Reset if moved up significantly (bounce)
+            floorHitRef.current = false;
+          }
+        }
+      }}
+      onClick={antigravity ? undefined : handleCardClick}
       className="group glass glass-hover rounded-2xl overflow-hidden flex flex-col h-full cursor-pointer"
-      style={{ transition: "transform 0.3s ease-out, box-shadow 0.3s ease-out" }}
+      style={{
+        transition: antigravity ? "none" : "transform 0.3s ease-out, box-shadow 0.3s ease-out",
+        zIndex: antigravity ? zIndex : "auto",
+        willChange: "transform"
+      }}
     >
       {/* Thumbnail */}
       <div className="relative overflow-hidden aspect-video">
@@ -81,11 +148,10 @@ export default function NewsCard({ item, index = 0 }: NewsCardProps) {
         <motion.button
           whileTap={{ scale: 0.75 }}
           onClick={handleBookmark}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors ${
-            isFav
-              ? "bg-primary/80 text-primary-foreground"
-              : "bg-black/30 text-white/80 hover:bg-black/50"
-          }`}
+          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors ${isFav
+            ? "bg-primary/80 text-primary-foreground"
+            : "bg-black/30 text-white/80 hover:bg-black/50"
+            }`}
           aria-label={isFav ? "Remove bookmark" : "Bookmark article"}
         >
           <motion.div

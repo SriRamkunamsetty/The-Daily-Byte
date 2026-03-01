@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Settings, BookmarkX, ArrowRight } from "lucide-react";
-import { useApp, MOCK_USER } from "@/context/AppContext";
+import { useApp } from "@/context/AppContext";
 import { ALL_NEWS } from "@/data/news";
 import NewsCard from "@/components/NewsCard";
 import Navbar from "@/components/Navbar";
@@ -9,7 +9,7 @@ import NewsFooter from "@/components/NewsFooter";
 import AuthModal from "@/components/AuthModal";
 
 export default function ProfilePage() {
-  const { isLoggedIn, favorites, authModalOpen, setAuthModalOpen, login } = useApp();
+  const { isLoggedIn, user, favorites, authModalOpen, setAuthModalOpen, login } = useApp();
 
   if (!isLoggedIn) {
     return (
@@ -65,13 +65,13 @@ export default function ProfilePage() {
         >
           <div className="flex items-center gap-5 flex-wrap">
             <img
-              src={MOCK_USER.avatar}
-              alt={MOCK_USER.name}
+              src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+              alt={user?.displayName || "User"}
               className="w-16 h-16 rounded-full border-2 border-primary/40 bg-muted"
             />
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-foreground">{MOCK_USER.name}</h1>
-              <p className="text-sm text-muted-foreground">{MOCK_USER.email}</p>
+              <h1 className="text-xl font-bold text-foreground">{user?.displayName || "User"}</h1>
+              <p className="text-sm text-muted-foreground">{user?.email || ""}</p>
             </div>
             <motion.button
               whileHover={{ scale: 1.04 }}

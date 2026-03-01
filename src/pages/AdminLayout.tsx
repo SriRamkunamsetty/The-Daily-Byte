@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LayoutDashboard, PlusCircle, BarChart3, FileText, ArrowLeft } from "lucide-react";
-import { useApp, MOCK_USER } from "@/context/AppContext";
+import { useApp } from "@/context/AppContext";
 
 const sidebarItems = [
   { icon: FileText, label: "All Posts", path: "/admin" },
@@ -11,7 +11,7 @@ const sidebarItems = [
 ];
 
 export default function AdminLayout() {
-  const { isLoggedIn, role } = useApp();
+  const { isLoggedIn, role, user } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -45,11 +45,11 @@ export default function AdminLayout() {
           </div>
           <div className="flex items-center gap-2">
             <img
-              src={MOCK_USER.avatar}
-              alt={MOCK_USER.name}
+              src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+              alt={user?.displayName || "User"}
               className="w-7 h-7 rounded-full border border-amber-400/50 bg-muted"
             />
-            <p className="text-xs text-muted-foreground truncate">{MOCK_USER.name}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.displayName || "User"}</p>
           </div>
         </div>
 
@@ -61,11 +61,10 @@ export default function AdminLayout() {
               <button
                 key={path}
                 onClick={() => navigate(path)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                  active
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${active
                     ? "bg-primary/15 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/15 dark:hover:bg-white/5"
-                }`}
+                  }`}
               >
                 <Icon size={18} />
                 {label}

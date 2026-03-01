@@ -7,6 +7,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import { CATEGORIES } from "@/components/CategoryTabs";
 import { useApp } from "@/context/AppContext";
+import { createArticle } from "@/lib/api";
 import type { NewsItem } from "@/components/NewsCard";
 import aiImg from "@/assets/news-ai.jpg";
 
@@ -14,11 +15,12 @@ const EDITOR_CATEGORIES = CATEGORIES.filter((c) => c !== "Top News");
 
 export default function AdminCreate() {
   const navigate = useNavigate();
-  const { addPost, userPosts } = useApp();
+  const { user } = useApp();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(EDITOR_CATEGORIES[0]);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [published, setPublished] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -49,24 +51,28 @@ export default function AdminCreate() {
     }
   }, []);
 
-  const handlePublish = () => {
-    if (!title.trim()) return;
+  const handlePublish = async () => {
+    if (!title.trim() || isPublishing) return;
+    setIsPublishing(true);
 
-    const newPost: NewsItem = {
-      id: Date.now(),
-      title: title.trim(),
-      description: editor?.getText().slice(0, 160) ?? "",
-      category,
-      timeAgo: "Just now",
-      createdAt: new Date(),
-      image: coverPreview ?? aiImg,
-      imageAlt: title.trim(),
-      content: editor?.getHTML() ?? "",
-    };
+    try {
+      await createArticle({
+        title: title.trim(),
+        description: editor?.getText().slice(0, 160) ?? "",
+        category,
+        image: coverPreview ?? aiImg,
+        imageAlt: title.trim(),
+        content: editor?.getHTML() ?? "",
+      });
 
-    addPost(newPost);
-    setPublished(true);
-    setTimeout(() => navigate("/admin"), 1500);
+      setPublished(true);
+      setTimeout(() => navigate("/admin"), 1500);
+    } catch (err) {
+      console.error("Failed to publish", err);
+      alert("Failed to publish post.");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   if (published) {
@@ -249,11 +255,15 @@ export default function AdminCreate() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={handlePublish}
-            disabled={!title.trim()}
+            disabled={!title.trim() || isPublishing}
             className="flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-primary-foreground text-sm font-bold shadow-lg hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Upload size={16} />
-            Publish Now
+            {isPublishing ? "Publishing..." : (
+              <>
+                <Upload size={16} />
+                Publish Now
+              </>
+            )}
           </motion.button>
         </div>
       </div>
@@ -275,11 +285,10 @@ function ToolbarBtn({
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-        active
-          ? "bg-primary/15 text-primary"
-          : "text-muted-foreground hover:text-foreground hover:bg-white/15 dark:hover:bg-white/5"
-      } ${className}`}
+      className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${active
+        ? "bg-primary/15 text-primary"
+        : "text-muted-foreground hover:text-foreground hover:bg-white/15 dark:hover:bg-white/5"
+        } ${className}`}
     >
       {label}
     </button>

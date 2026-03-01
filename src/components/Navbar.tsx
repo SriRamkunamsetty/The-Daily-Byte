@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search, Moon, Sun, Bell, Menu, X, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useApp, MOCK_USER } from "@/context/AppContext";
+import { useApp } from "@/context/AppContext";
 import UserMenu from "./UserMenu";
 
 interface NavbarProps {
@@ -11,7 +11,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ searchQuery: externalQuery, onSearchChange: externalOnChange }: NavbarProps) {
-  const { isLoggedIn, darkMode, toggleDark, logout, setAuthModalOpen } = useApp();
+  const { isLoggedIn, user, darkMode, toggleDark, logout, setAuthModalOpen } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -43,11 +43,10 @@ export default function Navbar({ searchQuery: externalQuery, onSearchChange: ext
           <motion.div
             animate={{ boxShadow: searchFocused ? "0 0 0 3px hsl(var(--primary) / 0.2)" : "0 0 0 0px transparent" }}
             transition={{ duration: 0.2 }}
-            className={`flex items-center rounded-full px-4 py-2 transition-colors duration-200 ${
-              searchFocused
+            className={`flex items-center rounded-full px-4 py-2 transition-colors duration-200 ${searchFocused
                 ? "bg-white dark:bg-white/10 border border-primary/40"
                 : "bg-white/50 dark:bg-white/5 border border-white/30 dark:border-white/10"
-            }`}
+              }`}
           >
             <Search size={15} className="text-muted-foreground shrink-0" />
             <input
@@ -101,8 +100,8 @@ export default function Navbar({ searchQuery: externalQuery, onSearchChange: ext
                 aria-label="User menu"
               >
                 <img
-                  src={MOCK_USER.avatar}
-                  alt={MOCK_USER.name}
+                  src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+                  alt={user?.displayName || "User"}
                   className="w-full h-full object-cover bg-muted"
                 />
               </motion.button>
@@ -162,13 +161,13 @@ export default function Navbar({ searchQuery: externalQuery, onSearchChange: ext
                   className="flex items-center gap-3 px-2 py-2 w-full"
                 >
                   <img
-                    src={MOCK_USER.avatar}
-                    alt={MOCK_USER.name}
+                    src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+                    alt={user?.displayName || "User"}
                     className="w-8 h-8 rounded-full border border-primary/50 bg-muted"
                   />
                   <div className="text-left">
-                    <p className="text-sm font-semibold text-foreground">{MOCK_USER.name}</p>
-                    <p className="text-xs text-muted-foreground">{MOCK_USER.email}</p>
+                    <p className="text-sm font-semibold text-foreground">{user?.displayName || "User"}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email || ""}</p>
                   </div>
                 </button>
                 <button

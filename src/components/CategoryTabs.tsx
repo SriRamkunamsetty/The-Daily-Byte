@@ -3,14 +3,10 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const CATEGORIES = [
-  "Top News",
-  "Geopolitics",
-  "Finance",
-  "Sports",
-  "AI Agents",
-  "Computer Vision",
-  "IoT & Hardware",
-  "Web Dev",
+  "All",
+  "Technology",
+  "Business",
+  "Science"
 ];
 
 interface CategoryTabsProps {

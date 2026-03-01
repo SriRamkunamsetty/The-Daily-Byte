@@ -1,21 +1,30 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import type { NewsItem } from "@/components/NewsCard";
+import { useShake } from "@/hooks/useShake";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut, type User } from "firebase/auth";
+import { getUserRole, getUserFavorites, toggleFavoriteInDb } from "@/lib/api";
 
 export type UserRole = "user" | "admin";
 
 interface AppContextValue {
   isLoggedIn: boolean;
+  user: User | null;
   role: UserRole;
   login: (role?: UserRole) => void;
-  logout: () => void;
-  favorites: Set<number>;
-  toggleFavorite: (id: number) => boolean;
+  logout: () => Promise<void>;
+  favorites: Set<string>;
+  toggleFavorite: (id: string) => Promise<boolean>;
   authModalOpen: boolean;
   setAuthModalOpen: (v: boolean) => void;
   darkMode: boolean;
   toggleDark: () => void;
   userPosts: NewsItem[];
   addPost: (post: NewsItem) => void;
+  antigravity: boolean;
+  toggleAntigravity: () => void;
+  isMuted: boolean;
+  toggleMute: () => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -26,46 +35,75 @@ export function useApp() {
   return ctx;
 }
 
-export const MOCK_USER = {
-  name: "Mohan SriRam Kunamsetty",
-  email: "mohan.sriram@dailybyte.com",
-  avatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Mohan",
-};
-
 export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<UserRole>("user");
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [userPosts, setUserPosts] = useState<NewsItem[]>([]);
+  const [antigravity, setAntigravity] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
-  const login = useCallback((r: UserRole = "user") => {
-    setIsLoggedIn(true);
-    setRole(r);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setIsLoggedIn(true);
+        setUser(firebaseUser);
+        const userRole = await getUserRole(firebaseUser.uid);
+        setRole(userRole);
+        const favs = await getUserFavorites(firebaseUser.uid);
+        setFavorites(favs);
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+        setRole("user");
+        setFavorites(new Set());
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const logout = useCallback(() => {
-    setIsLoggedIn(false);
-    setRole("user");
-    setFavorites(new Set());
+  const login = useCallback((r: UserRole = "user") => {
+    console.warn("Deprecated local login called. Use Firebase auth UI.");
+  }, []);
+
+  const logout = useCallback(async () => {
+    await signOut(auth);
   }, []);
 
   const toggleFavorite = useCallback(
-    (id: number) => {
-      if (!isLoggedIn) {
+    async (id: string) => {
+      if (!auth.currentUser) {
         setAuthModalOpen(true);
         return false;
       }
+
+      const isCurrentlyFav = favorites.has(id);
       setFavorites((prev) => {
         const next = new Set(prev);
         if (next.has(id)) next.delete(id);
         else next.add(id);
         return next;
       });
+
+      try {
+        await toggleFavoriteInDb(auth.currentUser.uid, id, isCurrentlyFav);
+      } catch (err) {
+        console.error("Failed to toggle favorite:", err);
+        setFavorites((prev) => {
+          const next = new Set(prev);
+          if (isCurrentlyFav) next.add(id);
+          else next.delete(id);
+          return next;
+        });
+      }
+
       return true;
     },
-    [isLoggedIn]
+    [favorites]
   );
 
   const toggleDark = useCallback(() => {
@@ -79,10 +117,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUserPosts((prev) => [post, ...prev]);
   }, []);
 
+  const toggleAntigravity = useCallback(() => {
+    setAntigravity((v) => !v);
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((v) => !v);
+  }, []);
+
+  useShake(toggleAntigravity);
+
   return (
     <AppContext.Provider
       value={{
         isLoggedIn,
+        user,
         role,
         login,
         logout,
@@ -94,6 +143,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toggleDark,
         userPosts,
         addPost,
+        antigravity,
+        toggleAntigravity,
+        isMuted,
+        toggleMute,
       }}
     >
       {children}

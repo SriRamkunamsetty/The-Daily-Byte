@@ -1,0 +1,26 @@
+name: Daily News Sync
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every 1 hour
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install Dependencies
+        run: |
+          cd backend
+          npm install
+      - name: Run Sync Script
+        env:
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          cd backend
+          node index.js

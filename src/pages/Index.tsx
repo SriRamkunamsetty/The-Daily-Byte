@@ -1,25 +1,33 @@
 import { useState, useMemo } from "react";
 import { useApp } from "@/context/AppContext";
+import { useNews } from "@/hooks/useNews";
 import Navbar from "@/components/Navbar";
 import CategoryTabs from "@/components/CategoryTabs";
 import HeroCard from "@/components/HeroCard";
 import NewsCard, { type NewsItem } from "@/components/NewsCard";
 import AdBanner from "@/components/AdBanner";
+import NewsAd from "@/components/NewsAd";
 import NewsFooter from "@/components/NewsFooter";
 import AuthModal from "@/components/AuthModal";
 import { ALL_NEWS } from "@/data/news";
 
 const Index = () => {
-  const { authModalOpen, setAuthModalOpen, login, userPosts } = useApp();
-  const [activeCategory, setActiveCategory] = useState("Top News");
+  const { authModalOpen, setAuthModalOpen, login, antigravity } = useApp();
+  const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const allArticles = useMemo(() => [...userPosts, ...ALL_NEWS], [userPosts]);
+  const { articles: dbArticles, loading: isLoading } = useNews(activeCategory);
+
+  const allArticles = useMemo(() => {
+    // Merge DB articles with the mock ALL_NEWS for fallback demo content
+    // DB articles take precedence
+    return [...dbArticles, ...ALL_NEWS];
+  }, [dbArticles]);
 
   const filteredNews = useMemo(() => {
     let news = allArticles;
-    if (activeCategory !== "Top News") {
-      news = news.filter((n) => n.category === activeCategory);
+    if (activeCategory !== "Top News" && activeCategory !== "All") {
+      news = news.filter((n) => n.category.toLowerCase() === activeCategory.toLowerCase());
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -38,7 +46,7 @@ const Index = () => {
     let adCount = 0;
     filteredNews.forEach((item, idx) => {
       items.push({ type: "news", item });
-      if ((idx + 1) % 4 === 0) {
+      if ((idx + 1) % 5 === 0) {
         adCount++;
         items.push({ type: "ad", id: adCount });
       }
@@ -47,7 +55,7 @@ const Index = () => {
   }, [filteredNews]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${antigravity ? "overflow-hidden h-screen" : ""}`}>
       <Navbar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       {/* Ad 1: Top Banner below navbar, above category tabs */}
@@ -58,7 +66,7 @@ const Index = () => {
       <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {(activeCategory === "Top News" || activeCategory === "AI Agents") && !searchQuery && (
+        {(activeCategory === "Top News" || activeCategory === "All" || activeCategory === "AI Agents") && !searchQuery && (
           <section className="mb-6" aria-label="Featured breaking news">
             <HeroCard />
           </section>
@@ -68,9 +76,9 @@ const Index = () => {
           <h2 className="text-xl font-bold text-foreground" style={{ fontFamily: "Georgia, serif" }}>
             {searchQuery
               ? `Search results for "${searchQuery}"`
-              : activeCategory === "Top News"
-              ? "Latest Stories"
-              : activeCategory}
+              : (activeCategory === "Top News" || activeCategory === "All")
+                ? "Latest Stories"
+                : activeCategory}
           </h2>
           {filteredNews.length > 0 && (
             <span className="text-sm text-muted-foreground">
@@ -94,7 +102,7 @@ const Index = () => {
                     <NewsCard key={`news-${entry.item.id}`} item={entry.item} index={idx} />
                   ) : (
                     <aside key={`ad-${entry.id}`} aria-label="Advertisement" className="flex">
-                      <AdBanner type="square" className="flex-1" />
+                      <NewsAd />
                     </aside>
                   )
                 )}

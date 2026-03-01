@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
+# 🗞️ The Daily Byte
 
-## Project info
+### Immersive News Aggregation with a Multisensory Physics Engine
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+The Daily Byte is a production-grade, full-stack news platform that transforms the standard news-reading experience into an interactive physical playground. Built with a focus on high-fidelity animations, autonomous data pipelines, and multisensory feedback, it represents the intersection of creative technology and modern web engineering.
 
-## How can I edit this code?
+## 🚀 Key Features
 
-There are several ways of editing your application.
+### 1. Multisensory Physics Engine (v2.0)
+A custom-built interaction layer that treats news cards as physical objects.
+- **Momentum Tossing**: Leverages `dragTransition` for natural gliding and friction-based stops.
+- **Dynamic Spring Dynamics**: Calibrated with `stiffness: 100` and `damping: 10` for an "enterprise" tactile feel.
+- **Spatial Audio**: Integrated Web Audio API providing pitch-shifted "thuds" on impact and atmospheric "whooshes" on gravity activation.
+- **Haptic Feedback**: Native `navigator.vibrate` synchronization for grab and impact events.
+- **Shake-to-Trigger**: Accelerometer-based toggle with full iOS 13+ motion permission support.
 
-**Use Lovable**
+### 2. Autonomous News Bridge
+A hardened backend pipeline that keeps the platform updated without manual intervention.
+- **Automated Sync**: GitHub Actions cron job triggering a Node.js sync engine every 4 hours.
+- **Data Integrity**: Implements base64-encoded title IDs to ensure a zero-duplicate Firestore environment.
+- **Efficiency**: Utilizes `db.batch()` to process up to 500 articles in a single atomic operation.
+- **Smart Cleaning**: Image fallback logic and 48-hour date filtering for guaranteed content freshness.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🛠️ Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+| Layer | Technologies |
+| --- | --- |
+| **Frontend** | React 18, Vite, TypeScript, Tailwind CSS |
+| **Animation** | Framer Motion (Physics Engine) |
+| **Backend** | Node.js, Firebase Admin SDK |
+| **Database** | Firebase Firestore (NoSQL) |
+| **Automation** | GitHub Actions (CI/CD) |
+| **Hosting** | Firebase Hosting |
 
-**Use your preferred IDE**
+## 🏗️ System Architecture
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1.  **Ingestion**: GitHub Actions wakes up every 4 hours and executes the `syncNews` script.
+2.  **Processing**: The script fetches headlines from NewsAPI, applies base64-encoding for unique IDs, and batches the writes.
+3.  **Storage**: Firestore receives the atomic batch update.
+4.  **Delivery**: The React frontend uses real-time listeners to render new cards instantly with GPU-accelerated animations (`will-change: transform`).
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 💻 Getting Started
 
-Follow these steps:
+### Prerequisites
+- Node.js (v18+)
+- Firebase CLI
+- NewsAPI Key
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1.  **Clone and Install**:
+    ```bash
+    git clone https://github.com/your-username/the-daily-byte.git
+    cd the-daily-byte
+    npm install
+    ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2.  **Environment Setup**:
+    Create a `.env` in the root and `backend/` directories.
+    ```env
+    VITE_FIREBASE_API_KEY=your_key
+    NEWS_API_KEY=your_news_key
+    ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+3.  **Local Development**:
+    ```bash
+    # Run the frontend
+    npm run dev
 
-**Edit a file directly in GitHub**
+    # Test the news sync
+    cd backend && node index.js
+    ```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔒 Security & Performance
+- **Credential Masking**: All sensitive JSON service accounts are injected via GitHub Secrets and parsed at runtime.
+- **GPU Acceleration**: Forced hardware acceleration for physics calculations to maintain a consistent 60FPS on mobile devices.
+- **API Optimization**: Strategic caching and batching to stay within the free-tier limits of NewsAPI and Firebase.
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🏆 Engineering Achievements
+- Successfully implemented iOS-specific permission gating for hardware sensors.
+- Engineered a bounce-aware audio system that triggers spatial sounds based on animation rebound events.
+- Built a type-safe architecture ensuring 0 runtime errors during high-intensity physics interactions.

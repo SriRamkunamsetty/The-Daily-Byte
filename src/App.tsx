@@ -13,6 +13,7 @@ import AdminPosts from "./pages/AdminPosts";
 import AdminCreate from "./pages/AdminCreate";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import NotFound from "./pages/NotFound";
+import FinishSignIn from "./components/FinishSignIn";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="create" element={<AdminCreate />} />
               <Route path="analytics" element={<AdminAnalytics />} />
             </Route>
+            <Route path="/finish-sign-in" element={<FinishSignIn />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppProvider>

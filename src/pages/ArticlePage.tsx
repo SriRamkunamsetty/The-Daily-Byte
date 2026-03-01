@@ -21,7 +21,7 @@ const categoryColors: Record<string, string> = {
 export default function ArticlePage() {
   const { id } = useParams();
   const { favorites, toggleFavorite, authModalOpen, setAuthModalOpen, login } = useApp();
-  const article = ALL_NEWS.find((n) => n.id === Number(id));
+  const article = ALL_NEWS.find((n) => n.id === id);
 
   if (!article) {
     return (
@@ -107,11 +107,10 @@ export default function ArticlePage() {
           <motion.button
             whileTap={{ scale: 0.85 }}
             onClick={() => toggleFavorite(article.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              isFav
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${isFav
                 ? "bg-primary/15 text-primary border border-primary/30"
                 : "glass text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
           >
             <motion.div
               key={isFav ? "filled" : "empty"}
