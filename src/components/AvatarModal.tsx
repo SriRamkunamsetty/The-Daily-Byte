@@ -221,8 +221,8 @@ export default function AvatarModal({ open, onClose }: AvatarModalProps) {
                         <div className="flex-1 overflow-y-auto relative bg-slate-900/30">
                             {/* CROPPER VIEW */}
                             {imageSrc && (
-                                <div className="absolute inset-0 flex flex-col p-4 sm:p-5 bg-slate-900">
-                                    <div className="relative flex-1 bg-black rounded-xl overflow-hidden min-h-[50vh] sm:min-h-[350px]">
+                                <div className="flex flex-col p-4 sm:p-5 bg-slate-900 min-h-[60vh] h-full">
+                                    <div className="relative flex-1 bg-black rounded-xl overflow-hidden min-h-[40vh] sm:min-h-[300px]">
                                         <Cropper
                                             image={imageSrc}
                                             crop={crop}
@@ -235,10 +235,10 @@ export default function AvatarModal({ open, onClose }: AvatarModalProps) {
                                             onZoomChange={setZoom}
                                         />
                                     </div>
-                                    <div className="mt-4 shrink-0 px-2">
-                                        <p className="text-center text-xs text-slate-400 mb-3">Drag to pan. Pinch or scroll to zoom.</p>
+                                    <div className="mt-4 shrink-0 px-2 py-1">
+                                        <p className="text-center text-xs text-slate-400 mb-2">Drag to pan. Pinch or scroll to zoom.</p>
                                     </div>
-                                    <div className="mt-2 shrink-0 flex gap-3">
+                                    <div className="mt-2 shrink-0 flex gap-3 pb-2">
                                         <button
                                             onClick={() => setImageSrc(null)}
                                             className="flex-1 py-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm font-medium transition-colors"
