@@ -47,7 +47,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [userPosts, setUserPosts] = useState<NewsItem[]>([]);
   const [antigravity, setAntigravity] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [userAvatar, setUserAvatarState] = useState<string | null>(null);
+  const [userAvatar, setUserAvatarState] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem('userAvatar');
+    }
+    return null;
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {

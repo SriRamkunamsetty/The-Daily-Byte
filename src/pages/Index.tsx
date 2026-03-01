@@ -9,20 +9,13 @@ import AdBanner from "@/components/AdBanner";
 import NewsAd from "@/components/NewsAd";
 import NewsFooter from "@/components/NewsFooter";
 import AuthModal from "@/components/AuthModal";
-import { ALL_NEWS } from "@/data/news";
 
 const Index = () => {
   const { authModalOpen, setAuthModalOpen, login, antigravity } = useApp();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { articles: dbArticles, loading: isLoading } = useNews(activeCategory);
-
-  const allArticles = useMemo(() => {
-    // Merge DB articles with the mock ALL_NEWS for fallback demo content
-    // DB articles take precedence
-    return [...dbArticles, ...ALL_NEWS];
-  }, [dbArticles]);
+  const { articles: allArticles, loading: isLoading } = useNews(activeCategory);
 
   const filteredNews = useMemo(() => {
     let news = allArticles;
