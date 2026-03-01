@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Settings, BookmarkX, ArrowRight } from "lucide-react";
@@ -7,9 +8,11 @@ import NewsCard from "@/components/NewsCard";
 import Navbar from "@/components/Navbar";
 import NewsFooter from "@/components/NewsFooter";
 import AuthModal from "@/components/AuthModal";
+import SettingsModal from "@/components/SettingsModal";
 
 export default function ProfilePage() {
   const { isLoggedIn, user, favorites, authModalOpen, setAuthModalOpen, login } = useApp();
+  const [openSettings, setOpenSettings] = useState(false);
 
   if (!isLoggedIn) {
     return (
@@ -63,29 +66,33 @@ export default function ProfilePage() {
           transition={{ delay: 0.1 }}
           className="glass rounded-2xl p-6 md:p-8 mb-10"
         >
-          <div className="flex items-center gap-5 flex-wrap">
-            <img
-              src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
-              alt={user?.displayName || "User"}
-              className="w-16 h-16 rounded-full border-2 border-primary/40 bg-muted"
-            />
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-foreground">{user?.displayName || "User"}</h1>
-              <p className="text-sm text-muted-foreground">{user?.email || ""}</p>
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
+            <div className="flex flex-col md:flex-row items-center gap-5 text-center md:text-left w-full md:w-auto">
+              <img
+                src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+                alt={user?.displayName || "User"}
+                className="w-24 h-24 md:w-16 md:h-16 rounded-full border-2 border-primary/40 bg-muted object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl md:text-xl font-bold text-foreground">{user?.displayName || "User"}</h1>
+                <p className="text-base md:text-sm text-muted-foreground">{user?.email || ""}</p>
+              </div>
             </div>
+
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="flex items-center gap-2 glass px-4 py-2 rounded-full text-sm font-medium text-foreground hover:bg-white/30 dark:hover:bg-white/10 transition-colors"
+              onClick={() => setOpenSettings(true)}
+              className="flex items-center justify-center gap-2 glass px-6 py-3 md:px-4 md:py-2 rounded-full text-base md:text-sm font-medium text-foreground hover:bg-white/30 dark:hover:bg-white/10 transition-colors w-full md:w-auto mt-2 md:mt-0"
             >
-              <Settings size={16} />
+              <Settings size={18} className="md:w-4 md:h-4" />
               Settings
             </motion.button>
           </div>
         </motion.div>
 
         {/* Saved articles */}
-        <h2 className="text-xl font-bold text-foreground mb-6" style={{ fontFamily: "Georgia, serif" }}>
+        <h2 id="saved-articles" className="text-xl font-bold text-foreground mb-6" style={{ fontFamily: "Georgia, serif" }}>
           My Saved Articles
         </h2>
 
@@ -122,6 +129,7 @@ export default function ProfilePage() {
 
       <NewsFooter />
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} onLogin={login} />
+      <SettingsModal open={openSettings} onClose={() => setOpenSettings(false)} />
     </div>
   );
 }
