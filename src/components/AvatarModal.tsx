@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, Check, Loader2, Image as ImageIcon, Trash2 } from "lucide-react";
 import { useApp } from "@/context/AppContext";
@@ -262,8 +262,8 @@ export default function AvatarModal({ open, onClose }: AvatarModalProps) {
                                                     key={avatar.id}
                                                     onClick={() => setPreviewAvatar(avatar.url)}
                                                     className={`relative aspect-square rounded-full transition-all overflow-hidden bg-slate-800 ${previewAvatar === avatar.url
-                                                            ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-900 scale-105'
-                                                            : 'hover:scale-105 opacity-70 hover:opacity-100 hover:ring-2 hover:ring-slate-700'
+                                                        ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-900 scale-105'
+                                                        : 'hover:scale-105 opacity-70 hover:opacity-100 hover:ring-2 hover:ring-slate-700'
                                                         }`}
                                                 >
                                                     <img src={avatar.url} alt={avatar.id} className="w-full h-full object-cover" />
