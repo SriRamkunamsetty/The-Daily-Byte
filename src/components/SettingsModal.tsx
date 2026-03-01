@@ -11,7 +11,7 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ open, onClose }: SettingsModalProps) {
-    const { user, darkMode, toggleDark } = useApp();
+    const { user, darkMode, toggleDark, userAvatar, updateUserAvatar } = useApp();
 
     const [activeTab, setActiveTab] = useState<"profile" | "preferences" | "account">("profile");
     const [displayName, setDisplayName] = useState(user?.displayName || "");
@@ -42,7 +42,9 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
             reader.onloadend = async () => {
                 try {
                     setIsSaving(true);
-                    await updateProfile(auth.currentUser!, { photoURL: reader.result as string });
+                    const dataUrl = reader.result as string;
+                    await updateProfile(auth.currentUser!, { photoURL: dataUrl });
+                    updateUserAvatar(dataUrl);
                     setSuccessMessage("Avatar updated!");
                     setTimeout(() => setSuccessMessage(""), 3000);
                 } catch (error) {
@@ -141,7 +143,7 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
                                         <div className="flex items-center gap-6">
                                             <div className="relative group">
                                                 <img
-                                                    src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+                                                    src={userAvatar || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
                                                     alt="Avatar"
                                                     className="w-20 h-20 rounded-full object-cover border-2 border-blue-500/50 bg-slate-800"
                                                 />

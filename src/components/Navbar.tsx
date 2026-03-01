@@ -11,7 +11,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ searchQuery: externalQuery, onSearchChange: externalOnChange }: NavbarProps) {
-  const { isLoggedIn, user, darkMode, toggleDark, logout, setAuthModalOpen } = useApp();
+  const { isLoggedIn, user, darkMode, toggleDark, logout, setAuthModalOpen, userAvatar } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -44,8 +44,8 @@ export default function Navbar({ searchQuery: externalQuery, onSearchChange: ext
             animate={{ boxShadow: searchFocused ? "0 0 0 3px hsl(var(--primary) / 0.2)" : "0 0 0 0px transparent" }}
             transition={{ duration: 0.2 }}
             className={`flex items-center rounded-full px-4 py-2 transition-colors duration-200 ${searchFocused
-                ? "bg-white dark:bg-white/10 border border-primary/40"
-                : "bg-white/50 dark:bg-white/5 border border-white/30 dark:border-white/10"
+              ? "bg-white dark:bg-white/10 border border-primary/40"
+              : "bg-white/50 dark:bg-white/5 border border-white/30 dark:border-white/10"
               }`}
           >
             <Search size={15} className="text-muted-foreground shrink-0" />
@@ -100,7 +100,7 @@ export default function Navbar({ searchQuery: externalQuery, onSearchChange: ext
                 aria-label="User menu"
               >
                 <img
-                  src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+                  src={userAvatar || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
                   alt={user?.displayName || "User"}
                   className="w-full h-full object-cover bg-muted"
                 />
@@ -161,9 +161,9 @@ export default function Navbar({ searchQuery: externalQuery, onSearchChange: ext
                   className="flex items-center gap-3 px-2 py-2 w-full"
                 >
                   <img
-                    src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+                    src={userAvatar || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
                     alt={user?.displayName || "User"}
-                    className="w-8 h-8 rounded-full border border-primary/50 bg-muted"
+                    className="w-8 h-8 rounded-full border border-primary/50 bg-muted object-cover"
                   />
                   <div className="text-left">
                     <p className="text-sm font-semibold text-foreground">{user?.displayName || "User"}</p>

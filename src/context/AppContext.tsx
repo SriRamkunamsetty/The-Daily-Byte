@@ -25,6 +25,8 @@ interface AppContextValue {
   toggleAntigravity: () => void;
   isMuted: boolean;
   toggleMute: () => void;
+  userAvatar: string | null;
+  updateUserAvatar: (url: string | null) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -45,12 +47,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [userPosts, setUserPosts] = useState<NewsItem[]>([]);
   const [antigravity, setAntigravity] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [userAvatar, setUserAvatarState] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setIsLoggedIn(true);
         setUser(firebaseUser);
+        setUserAvatarState(localStorage.getItem('userAvatar') || firebaseUser.photoURL || null);
         const userRole = await getUserRole(firebaseUser.uid);
         setRole(userRole);
         const favs = await getUserFavorites(firebaseUser.uid);
@@ -58,6 +62,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } else {
         setIsLoggedIn(false);
         setUser(null);
+        setUserAvatarState(null);
         setRole("user");
         setFavorites(new Set());
       }
@@ -125,6 +130,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsMuted((v) => !v);
   }, []);
 
+  const updateUserAvatar = useCallback((url: string | null) => {
+    setUserAvatarState(url);
+    if (url) {
+      localStorage.setItem('userAvatar', url);
+    } else {
+      localStorage.removeItem('userAvatar');
+    }
+  }, []);
+
   useShake(toggleAntigravity);
 
   return (
@@ -147,6 +161,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toggleAntigravity,
         isMuted,
         toggleMute,
+        userAvatar,
+        updateUserAvatar,
       }}
     >
       {children}

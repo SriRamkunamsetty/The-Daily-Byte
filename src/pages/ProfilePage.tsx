@@ -11,7 +11,7 @@ import AuthModal from "@/components/AuthModal";
 import SettingsModal from "@/components/SettingsModal";
 
 export default function ProfilePage() {
-  const { isLoggedIn, user, favorites, authModalOpen, setAuthModalOpen, login } = useApp();
+  const { isLoggedIn, user, favorites, authModalOpen, setAuthModalOpen, login, userAvatar } = useApp();
   const [openSettings, setOpenSettings] = useState(false);
 
   if (!isLoggedIn) {
@@ -69,7 +69,7 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
             <div className="flex flex-col md:flex-row items-center gap-5 text-center md:text-left w-full md:w-auto">
               <img
-                src={user?.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
+                src={userAvatar || "https://api.dicebear.com/9.x/notionists/svg?seed=User"}
                 alt={user?.displayName || "User"}
                 className="w-24 h-24 md:w-16 md:h-16 rounded-full border-2 border-primary/40 bg-muted object-cover"
               />
