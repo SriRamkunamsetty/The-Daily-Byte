@@ -171,7 +171,7 @@ export default function AvatarModal({ open, onClose }: AvatarModalProps) {
 
                     {/* Modal - Full screen mobile, centered rounded desktop */}
                     <motion.div
-                        className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-xl bg-slate-900 sm:border sm:border-white/10 sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+                        className="relative w-full max-h-screen overflow-y-auto sm:h-auto sm:max-h-[90vh] sm:max-w-xl bg-slate-900 sm:border sm:border-white/10 sm:rounded-2xl shadow-2xl flex flex-col"
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -190,55 +190,53 @@ export default function AvatarModal({ open, onClose }: AvatarModalProps) {
                             </button>
                         </div>
 
-                        {/* Tabs Navigation */}
-                        {!imageSrc && (
-                            <div className="flex border-b border-white/5 shrink-0 bg-slate-900 px-2 overflow-x-auto no-scrollbar">
-                                <button
-                                    onClick={() => setActiveTab("upload")}
-                                    className={`flex-1 min-w-[100px] py-3.5 text-sm font-medium text-center border-b-2 transition-colors whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === "upload" ? "border-blue-500 text-blue-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
-                                >
-                                    <Upload size={16} />
-                                    Upload
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab("avatars")}
-                                    className={`flex-1 min-w-[100px] py-3.5 text-sm font-medium text-center border-b-2 transition-colors whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === "avatars" ? "border-blue-500 text-blue-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
-                                >
-                                    <Sparkles size={16} />
-                                    Avatars
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab("preview")}
-                                    className={`flex-1 min-w-[100px] py-3.5 text-sm font-medium text-center border-b-2 transition-colors whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === "preview" ? "border-blue-500 text-blue-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
-                                >
-                                    <ImageIcon size={16} />
-                                    Preview
-                                </button>
-                            </div>
-                        )}
+                        {/* Tabs Navigation (Always shown on mobile to avoid hiding options) */}
+                        <div className="flex border-b border-white/5 shrink-0 bg-slate-900 px-2 overflow-x-auto no-scrollbar relative z-20">
+                            <button
+                                onClick={() => setActiveTab("upload")}
+                                className={`flex-1 min-w-[100px] py-3.5 text-sm font-medium text-center border-b-2 transition-colors whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === "upload" ? "border-blue-500 text-blue-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
+                            >
+                                <Upload size={16} />
+                                Upload
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("avatars")}
+                                className={`flex-1 min-w-[100px] py-3.5 text-sm font-medium text-center border-b-2 transition-colors whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === "avatars" ? "border-blue-500 text-blue-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
+                            >
+                                <Sparkles size={16} />
+                                Avatars
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("preview")}
+                                className={`flex-1 min-w-[100px] py-3.5 text-sm font-medium text-center border-b-2 transition-colors whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === "preview" ? "border-blue-500 text-blue-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
+                            >
+                                <ImageIcon size={16} />
+                                Preview
+                            </button>
+                        </div>
 
                         {/* Main Content Area */}
-                        <div className="flex-1 overflow-y-auto relative bg-slate-900/30">
+                        <div className="flex-1 relative bg-slate-900/30 overflow-hidden min-h-[50vh]">
                             {/* CROPPER VIEW */}
-                            {imageSrc && (
-                                <div className="flex flex-col p-4 sm:p-5 bg-slate-900 min-h-[60vh] h-full">
-                                    <div className="relative flex-1 bg-black rounded-xl overflow-hidden min-h-[40vh] sm:min-h-[300px]">
+                            {imageSrc && activeTab === "upload" && (
+                                <div className="flex flex-col p-4 sm:p-5 bg-slate-900 h-full relative z-20">
+                                    <div className="relative flex-1 bg-black rounded-xl overflow-hidden min-h-[30vh] sm:min-h-[300px]">
                                         <Cropper
                                             image={imageSrc}
                                             crop={crop}
                                             zoom={zoom}
                                             aspect={1}
                                             cropShape="round"
-                                            showGrid={false}
+                                            showGrid={true}
                                             onCropChange={setCrop}
                                             onCropComplete={onCropComplete}
                                             onZoomChange={setZoom}
                                         />
                                     </div>
                                     <div className="mt-4 shrink-0 px-2 py-1">
-                                        <p className="text-center text-xs text-slate-400 mb-2">Drag to pan. Pinch or scroll to zoom.</p>
+                                        <p className="text-center text-xs text-slate-400 mb-2 relative z-20">Drag to pan. Pinch or scroll to zoom.</p>
                                     </div>
-                                    <div className="mt-2 shrink-0 flex gap-3 pb-2">
+                                    <div className="mt-2 shrink-0 flex gap-3 pb-2 relative z-20">
                                         <button
                                             onClick={() => setImageSrc(null)}
                                             className="flex-1 py-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm font-medium transition-colors"
@@ -348,36 +346,34 @@ export default function AvatarModal({ open, onClose }: AvatarModalProps) {
                         </div>
 
                         {/* Footer Actions */}
-                        {!imageSrc && (
-                            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 p-4 sm:p-5 border-t border-white/10 shrink-0 bg-slate-900 z-10">
-                                <button
-                                    onClick={onClose}
-                                    disabled={isSaving}
-                                    className="py-3 px-6 rounded-xl bg-slate-800 sm:bg-transparent hover:bg-slate-700 text-slate-300 font-medium text-sm transition-colors text-center"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSave}
-                                    disabled={isSaving || previewAvatar === userAvatar}
-                                    className="flex-1 py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20"
-                                >
-                                    {isSaving ? (
-                                        <>
-                                            <Loader2 size={18} className="animate-spin" />
-                                            Saving...
-                                        </>
-                                    ) : success ? (
-                                        <>
-                                            <Check size={18} />
-                                            Saved!
-                                        </>
-                                    ) : (
-                                        "Save Avatar"
-                                    )}
-                                </button>
-                            </div>
-                        )}
+                        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 p-4 sm:p-5 border-t border-white/10 shrink-0 bg-slate-900 relative z-20">
+                            <button
+                                onClick={onClose}
+                                disabled={isSaving}
+                                className="py-3 px-6 rounded-xl bg-slate-800 sm:bg-transparent hover:bg-slate-700 text-slate-300 font-medium text-sm transition-colors text-center"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving || previewAvatar === userAvatar || !!imageSrc}
+                                className="flex-1 py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20"
+                            >
+                                {isSaving ? (
+                                    <>
+                                        <Loader2 size={18} className="animate-spin" />
+                                        Saving...
+                                    </>
+                                ) : success ? (
+                                    <>
+                                        <Check size={18} />
+                                        Saved!
+                                    </>
+                                ) : (
+                                    "Save Avatar"
+                                )}
+                            </button>
+                        </div>
                     </motion.div>
                 </motion.div>
             )}
