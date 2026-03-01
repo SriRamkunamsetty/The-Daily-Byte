@@ -54,7 +54,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (firebaseUser) {
         setIsLoggedIn(true);
         setUser(firebaseUser);
-        setUserAvatarState(localStorage.getItem('userAvatar') || firebaseUser.photoURL || null);
+        if (typeof window !== "undefined") {
+          setUserAvatarState(localStorage.getItem('userAvatar') || firebaseUser.photoURL || null);
+        } else {
+          setUserAvatarState(firebaseUser.photoURL || null);
+        }
         const userRole = await getUserRole(firebaseUser.uid);
         setRole(userRole);
         const favs = await getUserFavorites(firebaseUser.uid);
@@ -132,10 +136,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateUserAvatar = useCallback((url: string | null) => {
     setUserAvatarState(url);
-    if (url) {
-      localStorage.setItem('userAvatar', url);
-    } else {
-      localStorage.removeItem('userAvatar');
+    if (typeof window !== "undefined") {
+      if (url) {
+        localStorage.setItem('userAvatar', url);
+      } else {
+        localStorage.removeItem('userAvatar');
+      }
     }
   }, []);
 

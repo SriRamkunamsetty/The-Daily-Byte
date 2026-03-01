@@ -44,7 +44,11 @@ const Index = () => {
   const gridItems = useMemo(() => {
     const items: Array<{ type: "news"; item: NewsItem } | { type: "ad"; id: number }> = [];
     let adCount = 0;
-    filteredNews.forEach((item, idx) => {
+
+    // Safety check in case filteredNews is extremely large or malformed
+    const safeNews = Array.isArray(filteredNews) ? filteredNews : [];
+
+    safeNews.forEach((item, idx) => {
       items.push({ type: "news", item });
       if ((idx + 1) % 5 === 0) {
         adCount++;

@@ -22,17 +22,21 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        // Load notification preferences from localStorage
-        const saved = localStorage.getItem("daily_byte_notifications");
-        if (saved) {
-            setNotificationsEnabled(saved === "true");
+        // Load notification preferences safely
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem("daily_byte_notifications");
+            if (saved) {
+                setNotificationsEnabled(saved === "true");
+            }
         }
     }, []);
 
     const handleNotificationsToggle = () => {
         const newState = !notificationsEnabled;
         setNotificationsEnabled(newState);
-        localStorage.setItem("daily_byte_notifications", String(newState));
+        if (typeof window !== "undefined") {
+            localStorage.setItem("daily_byte_notifications", String(newState));
+        }
     };
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,7 +276,9 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
                                             <button
                                                 onClick={() => {
                                                     onClose();
-                                                    document.getElementById('saved-articles')?.scrollIntoView({ behavior: 'smooth' });
+                                                    if (typeof window !== "undefined") {
+                                                        document.getElementById('saved-articles')?.scrollIntoView({ behavior: 'smooth' });
+                                                    }
                                                 }}
                                                 className="w-full flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-800 transition-colors"
                                             >
