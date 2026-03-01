@@ -17,7 +17,7 @@ const NewsAd: React.FC = () => {
                 style={{ display: 'block', width: '100%' }}
                 data-ad-format="fluid"
                 data-ad-layout-key="-gw-3+1f-3d+2z"
-                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                data-ad-client="ca-pub-8882873890866370"
                 data-ad-slot="XXXXXXXXXX"
             />
         </div>
