@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -12,9 +12,10 @@ import {
   LayoutDashboard,
   Volume2,
   VolumeX,
+  Image as ImageIcon
 } from "lucide-react";
 import { useApp } from "@/context/AppContext";
-import GravityToggle from "./GravityToggle";
+import AvatarModal from "./AvatarModal";
 
 interface UserMenuProps {
   open: boolean;
@@ -26,6 +27,7 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
   const { darkMode, toggleDark, role, user, isMuted, toggleMute } = useApp();
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -58,6 +60,7 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
       keepOpen: true,
     },
     { icon: Bell, label: "Manage Alerts", onClick: () => { } },
+    { icon: ImageIcon, label: "Customize Avatar", onClick: () => setShowAvatarModal(true), keepOpen: true },
   ];
 
   return (
@@ -102,16 +105,15 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
                 {label}
               </button>
             ))}
-            <GravityToggle />
 
             <button
               onClick={toggleMute}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm w-full text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-colors border-t border-border/50"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm w-full text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
             >
               {isMuted ? (
-                <VolumeX size={16} className="text-muted-foreground" />
+                <VolumeX size={16} className="text-muted-foreground shrink-0" />
               ) : (
-                <Volume2 size={16} className="text-muted-foreground" />
+                <Volume2 size={16} className="text-muted-foreground shrink-0" />
               )}
               <span>{isMuted ? "Unmute Audio" : "Mute Audio"}</span>
             </button>
@@ -134,6 +136,9 @@ export default function UserMenu({ open, onClose, onLogout }: UserMenuProps) {
           </div>
         </motion.div>
       )}
+
+      {/* Portaled Modals */}
+      <AvatarModal open={showAvatarModal} onClose={() => setShowAvatarModal(false)} />
     </AnimatePresence>
   );
 }
